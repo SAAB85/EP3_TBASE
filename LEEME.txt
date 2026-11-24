@@ -1,0 +1,47 @@
+BDY1103 - TALLER DE BASE DE DATOS
+EVALUACION PARCIAL 3 - SISTEMA DE GESTION DE UNA CLINICA
+Modelo de datos No Relacional en MongoDB
+Estudiante: Sebastian Antipan
+Seccion: 005V - 2026-2
+
+QUE HAY EN ESTE ZIP
+1) BD_Clinica_MongoDB_EP3.js
+   Script unico y autoejecutable. Crea la base "clinica" desde cero,
+   define 6 colecciones con validacion $jsonSchema, crea 13 indices, carga
+   120 pacientes y 240 citas, y demuestra operaciones CRUD y agregaciones.
+   EJECUTAR ESTE.
+
+2) Evidencia_Ejecucion_EP3.txt
+   Salida completa de mongosh al ejecutar el script: validaciones rechazadas,
+   resultados de Create/Read/Update/Delete, reportes de agregacion y resumen
+   final (120 pacientes, 240 citas, 398 documentos).
+
+3) Informe_EvaluacionParcial3_Clinica.docx / .pdf
+   Informe con introduccion, diferencias relacional vs NoSQL, justificacion
+   del modelo, estructura de las 6 colecciones, CRUD, desafios, conclusion,
+   anexos con el codigo completo y evidencias.
+
+4) Presentacion_Clinica_EP3.pptx / .pdf
+   Presentacion ejecutiva de 17 diapositivas. Incluye notas del orador.
+
+COMO EJECUTAR
+- Requiere MongoDB y mongosh instalados.
+- Opcion 1:  mongosh --file BD_Clinica_MongoDB_EP3.js
+- Opcion 2:  abrir mongosh y ejecutar  load("BD_Clinica_MongoDB_EP3.js")
+- El script elimina y recrea la base "clinica". No usar en una base
+  con datos reales.
+- Al finalizar debe imprimir: "Script EP3 ejecutado correctamente."
+
+RESULTADO ESPERADO
+- 10 especialidades, 6 consultorios, 10 medicos, 120 pacientes,
+  12 medicamentos y 240 citas.
+- 398 documentos totales.
+- Citas: 144 ATENDIDAS, 48 PROGRAMADAS, 24 CANCELADAS y 24 NO_ASISTIO.
+- 96 citas con al menos una receta.
+
+NOTA SOBRE EL MODELO
+- 12 tablas relacionales -> 6 colecciones: pacientes, medicos, citas,
+  medicamentos, especialidades y consultorios.
+- La coleccion citas embebe diagnostico, tratamiento, receta y detalle, y
+  guarda un snapshot del paciente, medico y consultorio.
+- El historial medico se embebe en pacientes y las especialidades en medicos.
