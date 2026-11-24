@@ -1,0 +1,255 @@
+
+============================================================
+ 0. PREPARACION DE LA BASE DE DATOS
+============================================================
+  Base 'clinica' eliminada y recreada desde cero.
+
+============================================================
+ 1. CREACION DE COLECCIONES Y VALIDADORES
+============================================================
+  Colecciones creadas: especialidades, consultorios, medicos, pacientes, medicamentos, citas.
+
+============================================================
+ 2. CREACION DE INDICES
+============================================================
+  Indices creados: 13 (unicos en RUT, nombres y fechas de busqueda).
+
+============================================================
+ 3. CARGA MASIVA DE DATOS
+============================================================
+  Especialidades: 10
+  Consultorios:   6
+  Medicos:        10
+  Pacientes:      120
+  Medicamentos:   12
+  Citas:          240
+
+============================================================
+ 4. DEMOSTRACION DE VALIDACION DE ESQUEMA
+============================================================
+  Paciente rechazado correctamente: sexo debe ser M o F.
+  Medicamento rechazado correctamente: stock no puede ser negativo.
+
+============================================================
+ 5. CRUD: CREATE (insertOne / insertMany)
+============================================================
+  insertOne paciente -> _id insertado: 121
+  insertMany pacientes -> documentos insertados: 2
+  insertOne cita -> _id insertado: 241
+  insertMany citas de prueba -> documentos insertados: 2
+
+============================================================
+ 6. CRUD: READ (find / findOne / proyecciones)
+============================================================
+
+  6.1 Historia clinica completa de un paciente (documento embebido):
+{
+  _id: 1,
+  rut: '10000001-3',
+  nombre: 'Ana',
+  apellido: 'Antipan',
+  historial_medico: [
+    {
+      id_historial: 1,
+      fecha_registro: ISODate('2025-01-03T00:00:00.000Z'),
+      observaciones: 'Alergia leve a la penicilina.'
+    }
+  ]
+}
+
+  6.2 Las 5 citas mas recientes de pacientes con apellido Antipan:
+  Maria | Antipan | 2026-12-17 | 09:30 | CANCELADA
+  Luis | Antipan | 2026-12-16 | 09:00 | CANCELADA
+  Teresa | Antipan | 2026-12-15 | 10:30 | PROGRAMADA
+  Andres | Antipan | 2026-05-31 | 16:30 | NO_ASISTIO
+  Daniela | Antipan | 2026-05-30 | 16:00 | CANCELADA
+
+  6.3 Citas atendidas en marzo de 2026:
+  61 | Ana | Munoz | Andrea | 2026-03-03
+  62 | Luis | Munoz | Bastian | 2026-03-04
+  63 | Maria | Munoz | Carla | 2026-03-05
+  64 | Jorge | Munoz | Diego | 2026-03-06
+  65 | Carolina | Munoz | Elena | 2026-03-07
+  66 | Pedro | Munoz | Francisco | 2026-03-08
+
+  6.4 Citas con diagnostico de hipertension (I10) o diabetes (E11.9):
+  234 | Benjamin | Rojas | E11.9 | 2026-08-23
+  233 | Josefa | Rojas | I10 | 2026-08-22
+  224 | Nicolas | Rojas | E11.9 | 2026-08-13
+  223 | Javiera | Rojas | I10 | 2026-08-12
+  214 | Jorge | Rojas | E11.9 | 2026-08-03
+  213 | Maria | Rojas | I10 | 2026-08-02
+  204 | Benjamin | Munoz | E11.9 | 2026-07-24
+  203 | Josefa | Munoz | I10 | 2026-07-23
+
+  6.5 Citas que tienen al menos una receta (subdocumento anidado):
+  Total con receta: 96
+
+  6.6 Documento completo de una cita atendida (paciente + medico + diagnostico + tratamiento + receta en un solo documento):
+{
+  _id: 1,
+  paciente: {
+    id_paciente: 1,
+    rut: '10000001-3',
+    nombre: 'Ana',
+    apellido: 'Antipan'
+  },
+  medico: {
+    id_medico: 1,
+    nombre: 'Andrea',
+    apellido: 'Soto',
+    especialidad: 'Medicina General'
+  },
+  consultorio: {
+    id_consultorio: 1,
+    nombre: 'Consultorio 101',
+    piso: 1,
+    ubicacion: 'Ala Norte'
+  },
+  fecha_cita: ISODate('2026-01-02T00:00:00.000Z'),
+  hora_cita: '09:00',
+  estado: 'ATENDIDA',
+  diagnostico: {
+    id_diagnostico: 1,
+    codigo_cie: 'J00',
+    descripcion: 'Rinofaringitis aguda',
+    fecha_diagnostico: ISODate('2026-01-03T00:00:00.000Z')
+  },
+  tratamiento: {
+    id_tratamiento: 1,
+    descripcion: 'Reposo e hidratacion por 5 dias.',
+    fecha_inicio: ISODate('2026-01-03T00:00:00.000Z'),
+    fecha_fin: ISODate('2026-01-10T00:00:00.000Z')
+  },
+  recetas: [
+    {
+      id_receta: 1,
+      fecha_receta: ISODate('2026-01-03T00:00:00.000Z'),
+      detalle: [
+        {
+          id_medicamento: 3,
+          nombre: 'Amoxicilina 500mg',
+          dosis: '1 ml',
+          frecuencia: 'cada 24 horas',
+          duracion_dias: 5,
+          precio_unitario: 3500
+        },
+        {
+          id_medicamento: 4,
+          nombre: 'Loratadina 10mg',
+          dosis: '2 ml',
+          frecuencia: 'cada 6 horas',
+          duracion_dias: 6,
+          precio_unitario: 2200
+        }
+      ]
+    }
+  ]
+}
+
+  6.7 Conteo de citas por estado:
+  ATENDIDA | 144
+  PROGRAMADA | 49
+  CANCELADA | 26
+  NO_ASISTIO | 24
+
+============================================================
+ 7. CRUD: UPDATE (updateOne / updateMany / $set / $inc / $push / $pull / replaceOne)
+============================================================
+  updateOne paciente 121 -> coincidencias: 1, modificados: 1
+  $push historial paciente 1 -> modificados: 1
+  updateOne cita 241 (agregar diagnostico/tratamiento/receta) -> modificados: 1
+  $inc stock medicamento 1 (-5 unidades) -> modificados: 1, stock actual: 495
+  updateMany tratamientos de diagnosticos J00 -> coincidencias: 25, modificados: 25
+  $push registro temporal paciente 2 -> modificados: 1
+  $pull registro temporal paciente 2 -> modificados: 1
+  replaceOne medicamento 12 -> modificados: 1
+
+============================================================
+ 8. CRUD: DELETE (deleteOne / deleteMany)
+============================================================
+  deleteOne paciente de prueba 123 -> eliminados: 1
+  deleteMany citas de prueba 242 y 243 -> eliminadas: 2
+  deleteOne cita de prueba 241 -> eliminados: 1
+  deleteMany pacientes de prueba 121 y 122 -> eliminados: 2
+  deleteOne medicamento inexistente 900 -> eliminados: 0
+
+============================================================
+ 9. AGREGACIONES Y REPORTES DE GESTION
+============================================================
+
+  9.1 Citas por medico:
+  Gabriela | Contreras | Oftalmologia | 24
+  Javier | Cortes | Endocrinologia | 24
+  Carla | Fuentes | Cardiologia | 24
+  Francisco | Herrera | Ginecologia | 24
+  Diego | Munoz | Dermatologia | 24
+  Ignacia | Pizarro | Psiquiatria | 24
+  Bastian | Rojas | Pediatria | 24
+  Hugo | Silva | Otorrinolaringologia | 24
+  Andrea | Soto | Medicina General | 24
+  Elena | Vargas | Traumatologia | 24
+
+  9.2 Citas por especialidad:
+  Ginecologia | 24
+  Medicina General | 24
+  Traumatologia | 24
+  Pediatria | 24
+  Oftalmologia | 24
+  Endocrinologia | 24
+  Dermatologia | 24
+  Otorrinolaringologia | 24
+  Cardiologia | 24
+  Psiquiatria | 24
+
+  9.3 Diagnosticos mas frecuentes:
+  J00 | Rinofaringitis aguda | 24
+  M54.5 | Lumbago no especificado | 24
+  E11.9 | Diabetes mellitus tipo 2 | 24
+  J18.9 | Neumonia no especificada | 24
+  I10 | Hipertension esencial | 24
+
+  9.4 Pacientes con mas citas:
+  18 | Felipe | Antipan | 4
+  12 | Sebastian | Antipan | 4
+  10 | Matias | Antipan | 4
+  17 | Isidora | Antipan | 4
+  7 | Valentina | Antipan | 4
+
+  9.5 Medicamentos con stock bajo (menos de 250 unidades):
+  8 | Salbutamol Inhalador | 150 | 5600
+  12 | Ranitidina 150mg | 180 | 1950
+  6 | Losartan 50mg | 200 | 4200
+  7 | Metformina 850mg | 220 | 3100
+
+  9.6 Monto potencial de las recetas por medicamento:
+  Losartan 50mg | 24 | 907200
+  Amoxicilina 500mg | 24 | 672000
+  Metformina 850mg | 24 | 595200
+  Salbutamol Inhalador | 12 | 537600
+  Loratadina 10mg | 24 | 422400
+
+  9.7 Ocupacion por consultorio:
+  Consultorio 102 | Ala Norte | 40
+  Consultorio 201 | Ala Sur | 40
+  Consultorio 202 | Ala Sur | 40
+  Consultorio 301 | Ala Poniente | 40
+  Consultorio 101 | Ala Norte | 40
+  Consultorio 302 | Ala Poniente | 40
+
+============================================================
+ 10. RESUMEN FINAL DE LA BASE DE DATOS
+============================================================
+  especialidades: 10
+  consultorios: 6
+  medicos: 10
+  pacientes: 120
+  medicamentos: 12
+  citas: 240
+  Citas ATENDIDAS:  144
+  Citas PROGRAMADAS: 48
+  Citas CANCELADAS: 24
+  Citas NO_ASISTIO: 24
+  Documentos totales: 398
+
+  Script EP3 ejecutado correctamente.
