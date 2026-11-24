@@ -10,10 +10,15 @@
 
 El caso semestral (una clínica) se rediseña desde el modelo relacional de Oracle (12 tablas) a un modelo documental en MongoDB (6 colecciones), implementado con operaciones CRUD y agregaciones.
 
+## CRUD demostrado
+
+Ver [`CRUD.md`](CRUD.md): las cuatro operaciones (Create, Read, Update, Delete) con el código ejecutado y sus resultados. La salida completa está en `Evidencia_Ejecucion_EP3.txt`.
+
 ## Contenido del repositorio
 
 | Archivo | Descripción |
 |---|---|
+| `CRUD.md` | Guía del CRUD: Create, Read, Update y Delete con código y resultados |
 | `BD_Clinica_MongoDB_EP3.js` | Script reproducible que crea la base `clinica` desde cero: colecciones con validación `$jsonSchema`, 13 índices, carga de datos, CRUD y reportes |
 | `Evidencia_Ejecucion_EP3.txt` | Salida completa de `mongosh` al ejecutar el script |
 | `Informe_EvaluacionParcial3_Clinica.pdf` / `.docx` | Informe de la evaluación: contexto, diferencias relacional vs NoSQL, modelo, CRUD, conclusión y anexos |
